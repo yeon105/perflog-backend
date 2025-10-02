@@ -133,8 +133,7 @@ class PerfumeServiceImpl(
         val perfume = perfumeRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.PERFUME_NOT_FOUND) }
 
-        perfumeTagRepository.deleteByPerfumeId(id)
-        perfumeRepository.deleteById(perfume.id)
+        perfumeRepository.delete(perfume)
     }
 
     override fun getPerfume(id: Long): PerfumeDto.PerfumeResponse {
