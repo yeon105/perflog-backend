@@ -46,4 +46,7 @@ class Perfume(
 
     @Column(name = "created_at")
     var createdAt: LocalDateTime = LocalDateTime.now()
+
+    @OneToMany(mappedBy = "perfume", fetch = FetchType.LAZY)
+    val perfumeTags: MutableList<PerfumeTag> = mutableListOf()
 }

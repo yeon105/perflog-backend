@@ -6,9 +6,13 @@ import jakarta.persistence.*
 @Table(name = "tags")
 class Tag(
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
-
     @Column(nullable = false)
     var name: String
-)
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0
+
+    @OneToMany(mappedBy = "tag")
+    val perfumeTags: MutableList<PerfumeTag> = mutableListOf()
+}
