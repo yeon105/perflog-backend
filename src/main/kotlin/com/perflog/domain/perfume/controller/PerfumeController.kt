@@ -12,18 +12,18 @@ class PerfumeController(
     private val perfumeService: PerfumeService
 ) {
     @PostMapping
-    fun create(@RequestBody request: PerfumeDto.CreateRequest): ResponseEntity<Void> {
-        perfumeService.create(request)
+    fun create(@RequestBody request: PerfumeDto.PerfumeRequest): ResponseEntity<Void> {
+        perfumeService.createPerfume(request)
         return ResponseEntity.status(HttpStatus.CREATED).build()
     }
 
     @GetMapping("/{id}")
-    fun get(@PathVariable id: Long): ResponseEntity<PerfumeDto.Response> {
-        return ResponseEntity.ok(perfumeService.get(id))
+    fun get(@PathVariable id: Long): ResponseEntity<PerfumeDto.PerfumeResponse> {
+        return ResponseEntity.ok(perfumeService.getPerfume(id))
     }
 
     @GetMapping
-    fun list(): ResponseEntity<PerfumeDto.ListResponse> {
-        return ResponseEntity.ok(perfumeService.list())
+    fun list(): ResponseEntity<PerfumeDto.PerfumeListResponse> {
+        return ResponseEntity.ok(perfumeService.getPerfumeList())
     }
 }

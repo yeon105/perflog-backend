@@ -6,8 +6,8 @@ import com.perflog.domain.perfume.model.enum.Season
 
 class PerfumeDto {
 
-    // 등록 요청
-    data class CreateRequest(
+    // 향수 등록 요청 DTO
+    data class PerfumeRequest(
         val name: String,
         val brand: String,
         val launchYear: Int,
@@ -21,8 +21,8 @@ class PerfumeDto {
         val tagIds: List<Long> = emptyList()
     )
 
-    // 단일 향수 응답
-    data class Response(
+    // 향수 상세 응답 DTO
+    data class PerfumeResponse(
         val id: Long,
         val name: String,
         val brand: String,
@@ -37,10 +37,11 @@ class PerfumeDto {
         val tags: List<String>
     )
 
-    // 목록 응답
-    data class ListResponse(
+    // 향수 목록 응답 DTO
+    data class PerfumeListResponse(
         val items: List<PerfumeSimple>
     ) {
+        // 목록용 간단 향수 정보 DTO
         data class PerfumeSimple(
             val id: Long,
             val name: String,

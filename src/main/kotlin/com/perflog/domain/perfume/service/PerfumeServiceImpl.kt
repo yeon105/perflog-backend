@@ -20,7 +20,7 @@ class PerfumeServiceImpl(
 ) : PerfumeService {
 
     @Transactional
-    override fun create(request: PerfumeDto.CreateRequest) {
+    override fun createPerfume(request: PerfumeDto.PerfumeRequest) {
         if (perfumeRepository.existsByNameAndBrand(request.name, request.brand)) {
             throw CustomException(ErrorCode.DUPLICATE_PERFUME)
         }
@@ -60,7 +60,7 @@ class PerfumeServiceImpl(
         perfumeTagRepository.saveAll(tagLinks)
     }
 
-    override fun get(id: Long): PerfumeDto.Response {
+    override fun getPerfume(id: Long): PerfumeDto.PerfumeResponse {
         val perfume = perfumeRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.PERFUME_NOT_FOUND) }
 
@@ -68,7 +68,7 @@ class PerfumeServiceImpl(
 
         fun splitNotes(s: String?): List<String> = s?.split(",") ?: emptyList()
 
-        return PerfumeDto.Response(
+        return PerfumeDto.PerfumeResponse(
             id = perfume.id,
             name = perfume.name,
             brand = perfume.brand,
@@ -84,11 +84,11 @@ class PerfumeServiceImpl(
         )
     }
 
-    override fun list(): PerfumeDto.ListResponse {
+    override fun getPerfumeList(): PerfumeDto.PerfumeListResponse {
         val perfumes = perfumeRepository.findAll()
 
         val items = perfumes.map {
-            PerfumeDto.ListResponse.PerfumeSimple(
+            PerfumeDto.PerfumeListResponse.PerfumeSimple(
                 id = it.id,
                 name = it.name,
                 brand = it.brand,
@@ -97,7 +97,7 @@ class PerfumeServiceImpl(
             )
         }
 
-        return PerfumeDto.ListResponse(items = items)
+        return PerfumeDto.PerfumeListResponse(items = items)
     }
 
 }

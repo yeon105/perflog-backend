@@ -5,8 +5,6 @@ import jakarta.persistence.*
 @Entity
 @Table(name = "perfume_tags")
 class PerfumeTag(
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "perfume_id", nullable = false)
@@ -15,4 +13,8 @@ class PerfumeTag(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id", nullable = false)
     var tag: Tag
-)
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0
+}
