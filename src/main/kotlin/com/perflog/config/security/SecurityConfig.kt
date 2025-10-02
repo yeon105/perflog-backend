@@ -50,7 +50,10 @@ class SecurityConfig(
                     "/", "/api/member/login", "/api/member/refresh"
                 ).permitAll()
                     .requestMatchers(
-                        HttpMethod.GET, "/api/perfumes", "/api/reviews/perfume/**"
+                        HttpMethod.GET,
+                        "/api/perfumes",
+                        "/api/perfumes/*",
+                        "/api/reviews/perfume/**"
                     ).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/member").permitAll()
 
@@ -65,8 +68,9 @@ class SecurityConfig(
                     .hasAnyRole("USER", "ADMIN")
                     .requestMatchers("/api/member/logout").hasAnyRole("USER", "ADMIN")
 
-                    .requestMatchers(HttpMethod.GET, "/api/perfumes/*").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/perfumes").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/perfumes/*").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/perfumes/*").hasRole("ADMIN")
                     .anyRequest().authenticated()
             }
             .cors { cors ->

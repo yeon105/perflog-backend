@@ -4,7 +4,7 @@ import com.perflog.domain.perfume.dto.PerfumeDto
 import org.springframework.security.core.Authentication
 
 interface PerfumeService {
-
+  
     /**
      * 새로운 향수를 등록한다.
      */
