@@ -47,21 +47,30 @@ class SecurityConfig(
             .httpBasic { httpBasic -> httpBasic.disable() }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(
-                    "/", "/api/member/login", "/api/member/join", "/api/member/refresh"
+                    "/", "/api/member/login", "/api/member/refresh"
                 ).permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/perfumes").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/reviews/perfume/**").permitAll()
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/perfumes",
+                        "/api/perfumes/*",
+                        "/api/reviews/perfume/**"
+                    ).permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/member").permitAll()
 
-                    .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole("USER")
-                    .requestMatchers(HttpMethod.POST, "/api/reviews/*").hasRole("USER")
+                    .requestMatchers(HttpMethod.POST, "/api/reviews", "/api/reviews/*")
+                    .hasRole("USER")
                     .requestMatchers(HttpMethod.PUT, "/api/reviews/*").hasRole("USER")
+
+                    .requestMatchers(HttpMethod.GET, "/api/member")
+                    .hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/member").hasAnyRole("USER", "ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/reviews/*")
                     .hasAnyRole("USER", "ADMIN")
                     .requestMatchers("/api/member/logout").hasAnyRole("USER", "ADMIN")
 
-                    .requestMatchers(HttpMethod.POST, "/api/perfumes", "/api/perfumes/excel/upload")
-                    .hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/perfumes/*").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/perfumes").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/perfumes/*").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/perfumes/*").hasRole("ADMIN")
                     .anyRequest().authenticated()
             }
             .cors { cors ->

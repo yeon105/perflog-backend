@@ -3,7 +3,7 @@ package com.perflog.config.security.jwt
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
-import com.perflog.domain.member.dto.LoginRequest
+import com.perflog.domain.member.dto.MemberDto
 import com.perflog.domain.member.model.RefreshToken
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.member.repository.RefreshTokenRepository
@@ -36,7 +36,7 @@ class LoginFilter(
         response: HttpServletResponse
     ): Authentication {
         val requestBody = request.inputStream
-        val loginRequest = objectMapper.readValue(requestBody, LoginRequest::class.java)
+        val loginRequest = objectMapper.readValue(requestBody, MemberDto.LoginRequest::class.java)
 
         val email = loginRequest.email
         val password = loginRequest.password

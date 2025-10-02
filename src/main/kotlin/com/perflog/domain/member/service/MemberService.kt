@@ -1,27 +1,31 @@
 package com.perflog.domain.member.service
 
-import com.perflog.common.error.CustomException
-import com.perflog.common.error.ErrorCode
 import com.perflog.domain.member.dto.MemberDto
-import com.perflog.domain.member.model.Member
-import com.perflog.domain.member.model.MemberRole
-import com.perflog.domain.member.repository.MemberRepository
-import jakarta.transaction.Transactional
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.stereotype.Service
+import org.springframework.security.core.Authentication
 
-@Transactional
-@Service
-class MemberService(
-    private val memberRepository: MemberRepository,
-    private val passwordEncoder: PasswordEncoder
-) {
-    fun join(memberDTO: MemberDto) {
-        if (memberRepository.existsByEmail(memberDTO.email)) {
-            throw CustomException(ErrorCode.DUPLICATE_EMAIL)
-        }
-        val encodedPassword = passwordEncoder.encode(memberDTO.password)
-        val member = Member(memberDTO.email, encodedPassword, memberDTO.name, MemberRole.ROLE_USER)
-        memberRepository.save(member)
-    }
+interface MemberService {
+
+    /**
+     * 새로운 회원을 등록한다.
+     */
+    fun createMember(request: MemberDto.MemberRequest)
+
+    /**
+     * 특정 회원의 상세 정보를 조회한다.
+     *
+     * @return 향수 상세 응답 DTO
+     */
+    fun getMember(authentication: Authentication): MemberDto.MemberResponse
+
+    /**
+     * 특정 회원의 정보를 수정한다.
+     *
+     * @param request 회원 수정 요청 DTO
+     * @param authentication 인증 정보 (로그인 사용자)
+     * @return 수정된 회원 응답 DTO
+     */
+    fun updateMember(
+        request: MemberDto.MemberRequest,
+        authentication: Authentication
+    ): MemberDto.MemberResponse
 }

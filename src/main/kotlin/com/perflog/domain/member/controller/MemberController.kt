@@ -8,10 +8,8 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/member")
@@ -20,10 +18,25 @@ class MemberController(
     private val tokenService: TokenService
 ) {
 
-    @PostMapping("/join")
-    fun join(@Valid @RequestBody memberDTO: MemberDto): ResponseEntity<Void> {
-        memberService.join(memberDTO)
+    @PostMapping
+    fun createMember(@Valid @RequestBody request: MemberDto.MemberRequest): ResponseEntity<Void> {
+        memberService.createMember(request)
         return ResponseEntity.ok().build()
+    }
+
+    @GetMapping
+    fun getMember(authentication: Authentication): ResponseEntity<MemberDto.MemberResponse> {
+        val member = memberService.getMember(authentication)
+        return ResponseEntity.ok().body(member)
+    }
+
+    @PutMapping
+    fun updateMember(
+        @Valid @RequestBody request: MemberDto.MemberRequest,
+        authentication: Authentication
+    ): ResponseEntity<MemberDto.MemberResponse> {
+        val member = memberService.updateMember(request, authentication)
+        return ResponseEntity.ok().body(member)
     }
 
     @PostMapping("/logout")

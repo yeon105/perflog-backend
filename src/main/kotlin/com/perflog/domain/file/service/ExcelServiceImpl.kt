@@ -46,6 +46,7 @@ class ExcelServiceImpl(
 
         var total = 0
         var success = 0
+        val failedRows = mutableListOf<ExcelDto.FailedRow>()
 
         val tagsByName = tagRepository.findAll().associateBy { it.name.trim() }
 
@@ -81,11 +82,12 @@ class ExcelServiceImpl(
                         topNotes.isNullOrBlank() || middleNotes.isNullOrBlank() || baseNotes.isNullOrBlank()
                     ) {
                         log.warn("Row {} skipped: required field missing", i)
+                        failedRows.add(ExcelDto.FailedRow(i, "필수 필드 누락"))
                         continue
                     }
 
                     if (perfumeRepository.existsByNameAndBrand(name, brand)) {
-                        // 중복 스킵
+                        failedRows.add(ExcelDto.FailedRow(i, "중복된 향수"))
                         continue
                     }
 
@@ -121,6 +123,7 @@ class ExcelServiceImpl(
                     success++
                 } catch (e: Exception) {
                     log.warn("Row {} import failed: {}", i, e.message)
+                    failedRows.add(ExcelDto.FailedRow(i, "예외 발생: ${e.message}"))
                     continue
                 }
             }
@@ -135,7 +138,8 @@ class ExcelServiceImpl(
         return ExcelDto.UploadResult(
             total = total,
             success = success,
-            failed = total - success
+            failed = total - success,
+            failedRows = failedRows
         )
     }
 
