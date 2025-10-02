@@ -175,11 +175,8 @@ class PerfumeServiceImpl(
     }
 
     private fun requireAdmin(authentication: Authentication) {
-        val email = authentication.name
-        val member = (memberRepository.findByEmail(email)
-            ?: throw CustomException(ErrorCode.MEMBER_NOT_FOUND))
-
-        if (member.role != MemberRole.ROLE_ADMIN) {
+        val role = authentication.authorities.first().authority
+        if (role != MemberRole.ROLE_ADMIN.name) {
             throw CustomException(ErrorCode.FORBIDDEN)
         }
     }
