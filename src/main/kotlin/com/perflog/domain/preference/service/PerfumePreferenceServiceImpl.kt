@@ -6,12 +6,10 @@ import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.repository.PerfumeRepository
 import com.perflog.domain.preference.dto.PreferenceDto
 import com.perflog.domain.preference.model.PerfumePreference
-import com.perflog.domain.preference.model.PreferenceStatus
 import com.perflog.domain.preference.repository.PerfumePreferenceRepository
 import jakarta.transaction.Transactional
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 
 @Service
 @Transactional
@@ -35,8 +33,9 @@ class PerfumePreferenceServiceImpl(
         val perfumePreference = PerfumePreference(
             member = member,
             perfume = perfume,
-            status = PreferenceStatus.valueOf(request.status.uppercase()),
-            usedAt = request.usedAt?.let { LocalDate.parse(it) } ?: LocalDate.now()
+            status = request.status,
+            usedAt = request.usedAt
+                ?: throw CustomException(ErrorCode.USED_AT_REQUIRED)
         )
 
         preferenceRepository.save(perfumePreference)
