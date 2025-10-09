@@ -37,17 +37,12 @@ class PerfumeDto {
         val tags: List<String>
     )
 
-    // 향수 목록 응답 DTO
-    data class PerfumeListResponse(
-        val items: List<PerfumeSimple>
-    ) {
-        // 목록용 간단 향수 정보 DTO
-        data class PerfumeSimple(
-            val id: Long,
-            val name: String,
-            val brand: String,
-            val season: String,
-            val gender: String
-        )
-    }
+    // 향수 간단 응답 DTO
+    data class PerfumeSimpleResponse(
+        val id: Long,
+        val name: String,
+        val brand: String,
+        val season: String,
+        val gender: String
+    )
 }
