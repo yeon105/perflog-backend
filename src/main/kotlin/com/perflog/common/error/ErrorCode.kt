@@ -11,14 +11,9 @@ enum class ErrorCode(
     INVALID_ENUM(400, "열거형(enum) 값이 유효하지 않습니다."),
 
     // 인증/인가 (Security, JWT)
-    EMAIL_NOT_FOUND(404, "존재하지 않는 이메일입니다."),
-    INVALID_PASSWORD(401, "비밀번호가 일치하지 않습니다."),
-    UNAUTHORIZED(401, "인증이 필요합니다."),
     FORBIDDEN(403, "접근 권한이 없습니다."),
     INVALID_TOKEN(401, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(401, "만료된 토큰입니다."),
-    UNSUPPORTED_TOKEN(401, "지원하지 않는 토큰 형식입니다."),
-    TOKEN_MISSING(401, "토큰이 존재하지 않습니다."),
 
     // 회원
     DUPLICATE_EMAIL(409, "이미 가입된 이메일입니다."),
@@ -32,8 +27,7 @@ enum class ErrorCode(
     // 향수
     PERFUME_NOT_FOUND(404, "해당 향수를 찾을 수 없습니다."),
     DUPLICATE_PERFUME(409, "이미 동일한 향수가 존재합니다."),
-    INVALID_SEASON(400, "유효하지 않은 계절 값입니다."),
-    INVALID_LONGEVITY(400, "유효하지 않은 지속력 값입니다."),
-    NOTE_NOT_FOUND(404, "노트를 찾을 수 없습니다."),
-    TAG_NOT_FOUND(404, "태그를 찾을 수 없습니다.")
+    TAG_NOT_FOUND(404, "태그를 찾을 수 없습니다."),
+
+    USED_AT_REQUIRED(400, "사용 일자는 필수입니다.")
 }
