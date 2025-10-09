@@ -1,5 +1,6 @@
 package com.perflog.domain.perfume.service
 
+import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
 import com.perflog.domain.member.model.MemberRole
@@ -158,11 +159,12 @@ class PerfumeServiceImpl(
         )
     }
 
-    override fun getPerfumeList(): PerfumeDto.PerfumeListResponse {
-        val perfumes = perfumeRepository.findAll()
+    override fun getPerfumeList(requestDto: Paging.PageRequestDto): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
+        val pageable = requestDto.toPageable()
+        val page = perfumeRepository.findAll(pageable)
 
-        val items = perfumes.map {
-            PerfumeDto.PerfumeListResponse.PerfumeSimple(
+        val items = page.content.map {
+            PerfumeDto.PerfumeSimpleResponse(
                 id = it.id,
                 name = it.name,
                 brand = it.brand,
@@ -171,7 +173,16 @@ class PerfumeServiceImpl(
             )
         }
 
-        return PerfumeDto.PerfumeListResponse(items = items)
+        val meta = Paging.PageMeta(
+            page = page.number + 1,
+            size = page.size,
+            totalElements = page.totalElements,
+            totalPages = page.totalPages,
+            hasNext = page.hasNext(),
+            hasPrev = page.hasPrevious()
+        )
+
+        return Paging.PageResponseDto(items, meta)
     }
 
     private fun requireAdmin(authentication: Authentication) {

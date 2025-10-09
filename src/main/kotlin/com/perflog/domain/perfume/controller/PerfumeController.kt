@@ -1,5 +1,6 @@
 package com.perflog.domain.perfume.controller
 
+import com.perflog.common.dto.Paging
 import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.perfume.service.PerfumeService
 import org.springframework.http.HttpStatus
@@ -42,8 +43,8 @@ class PerfumeController(
     }
 
     @GetMapping
-    fun getPerfumeList(): ResponseEntity<PerfumeDto.PerfumeListResponse> {
-        return ResponseEntity.ok(perfumeService.getPerfumeList())
+    fun getPerfumeList(requestDto: Paging.PageRequestDto): ResponseEntity<Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>> {
+        return ResponseEntity.ok(perfumeService.getPerfumeList(requestDto))
     }
 
 }
