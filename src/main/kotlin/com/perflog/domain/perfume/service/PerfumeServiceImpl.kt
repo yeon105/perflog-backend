@@ -3,7 +3,6 @@ package com.perflog.domain.perfume.service
 import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
-import com.perflog.domain.member.model.MemberRole
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.perfume.model.entity.Perfume
@@ -25,7 +24,9 @@ class PerfumeServiceImpl(
 ) : PerfumeService {
 
     @Transactional
-    override fun createPerfume(request: PerfumeDto.PerfumeRequest) {
+    override fun createPerfume(request: PerfumeDto.PerfumeRequest, authentication: Authentication) {
+        findMember(authentication)
+
         if (perfumeRepository.existsByNameAndBrand(request.name, request.brand)) {
             throw CustomException(ErrorCode.DUPLICATE_PERFUME)
         }
@@ -71,7 +72,7 @@ class PerfumeServiceImpl(
         request: PerfumeDto.PerfumeRequest,
         authentication: Authentication
     ): PerfumeDto.PerfumeResponse {
-        requireAdmin(authentication)
+        findMember(authentication)
 
         val perfume = perfumeRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.PERFUME_NOT_FOUND) }
@@ -129,7 +130,7 @@ class PerfumeServiceImpl(
         id: Long,
         authentication: Authentication
     ) {
-        requireAdmin(authentication)
+        findMember(authentication)
 
         val perfume = perfumeRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.PERFUME_NOT_FOUND) }
@@ -185,11 +186,10 @@ class PerfumeServiceImpl(
         return Paging.PageResponseDto(items, meta)
     }
 
-    private fun requireAdmin(authentication: Authentication) {
-        val role = authentication.authorities.first().authority
-        if (role != MemberRole.ROLE_ADMIN.name) {
-            throw CustomException(ErrorCode.FORBIDDEN)
-        }
+    private fun findMember(authentication: Authentication) {
+        val email = authentication.name
+        memberRepository.findByEmail(email)
+            ?: throw CustomException(ErrorCode.MEMBER_NOT_FOUND)
     }
 
     private fun splitNotes(s: String?): List<String> = s?.split(",") ?: emptyList()
