@@ -58,7 +58,7 @@ class LoginFilter(
             ?: throw CustomException(ErrorCode.MEMBER_NOT_FOUND)
 
         // 기존 Refresh Token 삭제
-        refreshTokenRepository.deleteByMember(member)
+        refreshTokenRepository.deleteAllByMemberId(member.id)
 
         // 새로운 토큰들 생성
         val accessToken = jwtUtil.createAccessToken(member.id, member.role.toString())
