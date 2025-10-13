@@ -2,6 +2,7 @@ package com.perflog.domain.perfume.service
 
 import com.perflog.common.dto.Paging
 import com.perflog.domain.perfume.dto.PerfumeDto
+import com.perflog.domain.perfume.model.enum.SearchTarget
 import org.springframework.security.core.Authentication
 
 interface PerfumeService {
@@ -9,7 +10,7 @@ interface PerfumeService {
     /**
      * 새로운 향수를 등록한다.
      */
-    fun createPerfume(request: PerfumeDto.PerfumeRequest)
+    fun createPerfume(request: PerfumeDto.PerfumeRequest, authentication: Authentication)
 
     /**
      * 특정 향수를 수정한다.
@@ -47,4 +48,15 @@ interface PerfumeService {
      * @return 향수 목록 응답 DTO
      */
     fun getPerfumeList(requestDto: Paging.PageRequestDto): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>
+
+    /**
+     * 이름 또는 브랜드를 기준으로 향수 목록을 검색한다.
+     *
+     * @return 검색 향수 목록 응답 DTO
+     */
+    fun searchPerfume(
+        target: SearchTarget,
+        keyword: String,
+        requestDto: Paging.PageRequestDto
+    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>
 }

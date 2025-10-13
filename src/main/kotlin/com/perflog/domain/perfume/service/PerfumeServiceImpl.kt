@@ -7,9 +7,11 @@ import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.entity.PerfumeTag
+import com.perflog.domain.perfume.model.enum.SearchTarget
 import com.perflog.domain.perfume.repository.PerfumeRepository
 import com.perflog.domain.perfume.repository.PerfumeTagRepository
 import com.perflog.domain.perfume.repository.TagRepository
+import org.springframework.data.domain.Page
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -164,6 +166,22 @@ class PerfumeServiceImpl(
         val pageable = requestDto.toPageable()
         val page = perfumeRepository.findAll(pageable)
 
+        return toPageResponse(page)
+    }
+
+
+    override fun searchPerfume(
+        target: SearchTarget,
+        keyword: String,
+        requestDto: Paging.PageRequestDto
+    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
+        val pageable = requestDto.toPageable()
+        val page = perfumeRepository.searchByTarget(target.name, keyword, pageable)
+
+        return toPageResponse(page)
+    }
+
+    private fun toPageResponse(page: Page<Perfume>): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
         val items = page.content.map {
             PerfumeDto.PerfumeSimpleResponse(
                 id = it.id,
