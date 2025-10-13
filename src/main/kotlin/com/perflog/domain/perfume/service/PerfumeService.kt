@@ -1,10 +1,11 @@
 package com.perflog.domain.perfume.service
 
+import com.perflog.common.dto.Paging
 import com.perflog.domain.perfume.dto.PerfumeDto
 import org.springframework.security.core.Authentication
 
 interface PerfumeService {
-  
+
     /**
      * 새로운 향수를 등록한다.
      */
@@ -45,5 +46,5 @@ interface PerfumeService {
      *
      * @return 향수 목록 응답 DTO
      */
-    fun getPerfumeList(): PerfumeDto.PerfumeListResponse
+    fun getPerfumeList(requestDto: Paging.PageRequestDto): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>
 }

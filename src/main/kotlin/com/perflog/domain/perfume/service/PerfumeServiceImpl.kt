@@ -1,8 +1,8 @@
 package com.perflog.domain.perfume.service
 
+import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
-import com.perflog.domain.member.model.MemberRole
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.perfume.model.entity.Perfume
@@ -24,7 +24,9 @@ class PerfumeServiceImpl(
 ) : PerfumeService {
 
     @Transactional
-    override fun createPerfume(request: PerfumeDto.PerfumeRequest) {
+    override fun createPerfume(request: PerfumeDto.PerfumeRequest, authentication: Authentication) {
+        findMember(authentication)
+
         if (perfumeRepository.existsByNameAndBrand(request.name, request.brand)) {
             throw CustomException(ErrorCode.DUPLICATE_PERFUME)
         }
@@ -70,7 +72,7 @@ class PerfumeServiceImpl(
         request: PerfumeDto.PerfumeRequest,
         authentication: Authentication
     ): PerfumeDto.PerfumeResponse {
-        requireAdmin(authentication)
+        findMember(authentication)
 
         val perfume = perfumeRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.PERFUME_NOT_FOUND) }
@@ -128,7 +130,7 @@ class PerfumeServiceImpl(
         id: Long,
         authentication: Authentication
     ) {
-        requireAdmin(authentication)
+        findMember(authentication)
 
         val perfume = perfumeRepository.findById(id)
             .orElseThrow { CustomException(ErrorCode.PERFUME_NOT_FOUND) }
@@ -158,11 +160,12 @@ class PerfumeServiceImpl(
         )
     }
 
-    override fun getPerfumeList(): PerfumeDto.PerfumeListResponse {
-        val perfumes = perfumeRepository.findAll()
+    override fun getPerfumeList(requestDto: Paging.PageRequestDto): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
+        val pageable = requestDto.toPageable()
+        val page = perfumeRepository.findAll(pageable)
 
-        val items = perfumes.map {
-            PerfumeDto.PerfumeListResponse.PerfumeSimple(
+        val items = page.content.map {
+            PerfumeDto.PerfumeSimpleResponse(
                 id = it.id,
                 name = it.name,
                 brand = it.brand,
@@ -171,17 +174,22 @@ class PerfumeServiceImpl(
             )
         }
 
-        return PerfumeDto.PerfumeListResponse(items = items)
+        val meta = Paging.PageMeta(
+            page = page.number + 1,
+            size = page.size,
+            totalElements = page.totalElements,
+            totalPages = page.totalPages,
+            hasNext = page.hasNext(),
+            hasPrev = page.hasPrevious()
+        )
+
+        return Paging.PageResponseDto(items, meta)
     }
 
-    private fun requireAdmin(authentication: Authentication) {
+    private fun findMember(authentication: Authentication) {
         val email = authentication.name
-        val member = (memberRepository.findByEmail(email)
-            ?: throw CustomException(ErrorCode.MEMBER_NOT_FOUND))
-
-        if (member.role != MemberRole.ROLE_ADMIN) {
-            throw CustomException(ErrorCode.FORBIDDEN)
-        }
+        memberRepository.findByEmail(email)
+            ?: throw CustomException(ErrorCode.MEMBER_NOT_FOUND)
     }
 
     private fun splitNotes(s: String?): List<String> = s?.split(",") ?: emptyList()

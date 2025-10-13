@@ -47,6 +47,11 @@ class Perfume(
     @Column(name = "created_at")
     var createdAt: LocalDateTime = LocalDateTime.now()
 
-    @OneToMany(mappedBy = "perfume", fetch = FetchType.LAZY)
+    @OneToMany(
+        mappedBy = "perfume",
+        fetch = FetchType.LAZY,
+        cascade = [CascadeType.REMOVE],
+        orphanRemoval = true
+    )
     val perfumeTags: MutableList<PerfumeTag> = mutableListOf()
 }
