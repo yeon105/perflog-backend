@@ -52,7 +52,7 @@ class SecurityConfig(
                     .requestMatchers(
                         HttpMethod.GET,
                         "/api/perfumes",
-                        "/api/perfumes/*",
+                        "/api/perfumes/**",
                         "/api/reviews/perfume/**"
                     ).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/member").permitAll()
