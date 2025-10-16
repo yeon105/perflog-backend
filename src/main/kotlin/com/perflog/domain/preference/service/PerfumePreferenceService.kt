@@ -1,5 +1,6 @@
 package com.perflog.domain.preference.service
 
+import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.preference.dto.PreferenceDto
 import org.springframework.security.core.Authentication
 
@@ -17,4 +18,12 @@ interface PerfumePreferenceService {
         request: PreferenceDto.CreateRequest,
         authentication: Authentication
     )
+
+    /**
+     * 선호하는 향수의 간단한 정보를 조회한다.
+     *
+     * @param authentication 현재 로그인한 사용자 정보
+     * @return 선호 향수 목록 응답 DTO
+     */
+    fun getPreferredPerfumes(authentication: Authentication): List<PerfumeDto.PerfumeSimpleResponse>
 }
