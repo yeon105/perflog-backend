@@ -21,7 +21,7 @@ class PerfumePreference(
     var status: PreferenceStatus,
 
     @Column(name = "used_at", nullable = true)
-    var usedAt: LocalDate? = null
+    var usedAt: LocalDate
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
