@@ -176,7 +176,15 @@ class PerfumeServiceImpl(
         requestDto: Paging.PageRequestDto
     ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
         val pageable = requestDto.toPageable()
-        val page = perfumeRepository.searchByTarget(target.name, keyword, pageable)
+        val page = when (target) {
+            SearchTarget.NAME -> perfumeRepository.findByNameContainingIgnoreCase(keyword, pageable)
+            SearchTarget.BRAND -> perfumeRepository.findByBrandContainingIgnoreCase(keyword, pageable)
+            SearchTarget.ALL -> perfumeRepository.findByNameContainingIgnoreCaseOrBrandContainingIgnoreCase(
+                keyword,
+                keyword,
+                pageable
+            )
+        }
 
         return toPageResponse(page)
     }
