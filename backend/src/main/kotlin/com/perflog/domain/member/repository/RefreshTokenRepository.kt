@@ -10,6 +10,9 @@ interface RefreshTokenRepository : JpaRepository<RefreshToken, Long> {
     fun findByToken(token: String): RefreshToken?
 
     @Modifying
+    fun deleteByToken(refreshToken: String)
+
+    @Modifying
     @Transactional
     @Query("DELETE FROM RefreshToken rt WHERE rt.member.id = :memberId")
     fun deleteAllByMemberId(memberId: Long)
