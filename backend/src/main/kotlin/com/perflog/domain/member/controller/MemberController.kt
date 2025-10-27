@@ -73,9 +73,7 @@ class MemberController(
             ?: return ResponseEntity.badRequest().build()
 
         val tokenResponse = tokenService.refreshAccessToken(refreshToken)
-            ?: return ResponseEntity.unprocessableEntity().build()
 
-        // 새로운 Access Token을 쿠키에 설정
         val accessTokenCookie = Cookie("accessToken", tokenResponse.accessToken).apply {
             isHttpOnly = true
             secure = false
@@ -83,7 +81,15 @@ class MemberController(
             maxAge = 15 * 60 // 15분
         }
 
+        val refreshTokenCookie = Cookie("refreshToken", tokenResponse.refreshToken).apply {
+            isHttpOnly = true
+            secure = false
+            path = "/"
+            maxAge = 24 * 60 * 60 // 1일
+        }
+
         response.addCookie(accessTokenCookie)
+        response.addCookie(refreshTokenCookie)
 
         return ResponseEntity.ok().build()
     }
