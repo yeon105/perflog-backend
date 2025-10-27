@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginApi } from "../../api/auth";
-import "../../styles/pages/LoginPage.css";
+import "../../styles/pages/_shard/auth.css";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
@@ -33,19 +33,19 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="login-container">
-      <Link to="/" className="login-title-link">
-        <h1 className="login-title">PerfLog</h1>
+    <section className="auth-container">
+      <Link to="/" className="auth-title-link">
+        <h1 className="auth-title">PerfLog</h1>
       </Link>
 
-      <form onSubmit={onSubmit} className="login-form">
+      <form onSubmit={onSubmit} className="auth-form">
         <input
           name="email"
           type="email"
           placeholder="아이디 (이메일)"
           value={form.email}
           onChange={onChange}
-          className="login-input"
+          className="auth-input"
           required
         />
         <input
@@ -54,16 +54,16 @@ export default function LoginPage() {
           placeholder="비밀번호"
           value={form.password}
           onChange={onChange}
-          className="login-input"
+          className="auth-input"
           required
         />
 
-        <button type="submit" disabled={submitting} className="login-button">
+        <button type="submit" disabled={submitting} className="auth-button">
           {submitting ? "로그인 중..." : "로그인"}
         </button>
       </form>
 
-      <div className="login-links">
+      <div className="auth-links">
         <span>아이디 찾기</span> | <span>비밀번호 찾기</span> |{" "}
         <Link to="/signup">회원가입</Link>
       </div>
