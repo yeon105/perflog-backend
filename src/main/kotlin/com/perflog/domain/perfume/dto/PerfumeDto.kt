@@ -43,6 +43,9 @@ class PerfumeDto {
         val name: String,
         val brand: String,
         val season: String,
-        val gender: String
+        val gender: String,
+        val imageUrl: String,
+        val averageRating: Double,
+        val reviewCount: Long
     )
 }
