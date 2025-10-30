@@ -4,7 +4,6 @@ import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
 import com.perflog.config.security.jwt.JwtUtil
 import com.perflog.domain.member.dto.TokenResponse
-import com.perflog.domain.member.model.RefreshToken
 import com.perflog.domain.member.repository.RefreshTokenRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -48,13 +47,8 @@ class TokenService(
         val newAccessToken = jwtUtil.createAccessToken(member.id, member.role.toString())
         val newRefreshToken = jwtUtil.createRefreshToken(member.id)
 
-        val refreshTokenEntity = RefreshToken(
-            member, newRefreshToken, LocalDateTime.now().plusDays(1)
-        )
-
-        refreshTokenRepository.delete(storedToken)
-        refreshTokenRepository.flush()
-        refreshTokenRepository.save(refreshTokenEntity)
+        storedToken.token = newRefreshToken
+        storedToken.expiresAt = LocalDateTime.now().plusDays(1)
 
         return TokenResponse(newAccessToken, newRefreshToken)
     }
