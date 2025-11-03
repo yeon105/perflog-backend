@@ -56,11 +56,8 @@ class JwtAuthFilter(
             // 인증 등록
             SecurityContextHolder.getContext().authentication = authentication
             filterChain.doFilter(request, response)
-        } catch (e: Exception) {
-            response.status = HttpServletResponse.SC_UNAUTHORIZED
-            response.contentType = "application/json;charset=UTF-8"
-            response.writer.write("""{"error":"ERROR_ACCESS_TOKEN","message":"${e.message}"}""")
-            return
+        } catch (e: CustomException) {
+            throw e
         }
     }
 }
