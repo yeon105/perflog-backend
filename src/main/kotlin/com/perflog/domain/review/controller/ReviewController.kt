@@ -1,5 +1,6 @@
 package com.perflog.domain.review.controller
 
+import com.perflog.common.dto.Paging
 import com.perflog.domain.review.dto.ReviewDto
 import com.perflog.domain.review.service.ReviewService
 import org.springframework.http.HttpStatus
@@ -38,6 +39,15 @@ class ReviewController(
     ): ResponseEntity<Void> {
         reviewService.deleteReview(reviewId, authentication)
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/member")
+    fun getReviews(
+        authentication: Authentication,
+        requestDto: Paging.PageRequestDto
+    ): ResponseEntity<Paging.PageResponseDto<ReviewDto.ReviewResponse>> {
+        val reviews = reviewService.getReviews(authentication, requestDto)
+        return ResponseEntity.ok().body(reviews)
     }
 
     @GetMapping("/perfume/{perfumeId}")

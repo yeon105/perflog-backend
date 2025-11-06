@@ -1,5 +1,6 @@
 package com.perflog.domain.review.service
 
+import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
 import com.perflog.domain.member.repository.MemberRepository
@@ -80,12 +81,46 @@ class ReviewServiceImpl(
         val currentEmail = authentication.name.lowercase()
         val authorEmail = review.member.email.lowercase()
         val authorities = authentication.authorities.map { it.authority }
-        
+
         if (authorEmail != currentEmail && "ROLE_ADMIN" !in authorities) {
             throw CustomException(ErrorCode.FORBIDDEN)
         }
 
         reviewRepository.delete(review)
+    }
+
+    @Transactional(readOnly = true)
+    override fun getReviews(
+        authentication: Authentication,
+        requestDto: Paging.PageRequestDto
+    ): Paging.PageResponseDto<ReviewDto.ReviewResponse> {
+        val member = memberRepository.findByEmail(authentication.name)
+            ?: throw CustomException(ErrorCode.MEMBER_NOT_FOUND)
+
+        val pageable = requestDto.toPageable()
+        val reviews = reviewRepository.findAllByMemberId(member.id, pageable)
+
+        val items = reviews.content.map { review ->
+            ReviewDto.ReviewResponse(
+                id = review.id,
+                perfumeId = review.perfume.id,
+                rating = review.rating,
+                content = review.content,
+                createdAt = review.createdAt,
+                updatedAt = review.updatedAt
+            )
+        }
+
+        val meta = Paging.PageMeta(
+            page = reviews.number + 1,
+            size = reviews.size,
+            totalElements = reviews.totalElements,
+            totalPages = reviews.totalPages,
+            hasNext = reviews.hasNext(),
+            hasPrev = reviews.hasPrevious()
+        )
+
+        return Paging.PageResponseDto(items, meta)
     }
 
     @Transactional(readOnly = true)

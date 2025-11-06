@@ -1,5 +1,6 @@
 package com.perflog.domain.review.service
 
+import com.perflog.common.dto.Paging
 import com.perflog.domain.review.dto.ReviewDto
 import org.springframework.security.core.Authentication
 
@@ -33,6 +34,16 @@ interface ReviewService {
      * @param authentication 현재 로그인한 사용자 정보 (작성자 검증용)
      */
     fun deleteReview(id: Long, authentication: Authentication)
+
+    /**
+     * 사용자가 향수에 작성한 리뷰 목록을 조회한다.
+     *
+     * @return 리뷰 응답 DTO 목록
+     */
+    fun getReviews(
+        authentication: Authentication,
+        requestDto: Paging.PageRequestDto
+    ): Paging.PageResponseDto<ReviewDto.ReviewResponse>
 
     /**
      * 특정 향수에 작성된 리뷰 목록을 조회한다.
