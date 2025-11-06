@@ -5,13 +5,13 @@ import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
-import com.perflog.domain.perfume.dto.PerfumeReviewSummaryDto
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.entity.PerfumeTag
 import com.perflog.domain.perfume.model.enum.SearchTarget
 import com.perflog.domain.perfume.repository.PerfumeRepository
 import com.perflog.domain.perfume.repository.PerfumeTagRepository
 import com.perflog.domain.perfume.repository.TagRepository
+import com.perflog.domain.review.dto.PerfumeReviewSummary
 import com.perflog.domain.review.repository.ReviewRepository
 import org.springframework.data.domain.Page
 import org.springframework.security.core.Authentication
@@ -192,11 +192,17 @@ class PerfumeServiceImpl(
         return toPageResponse(page)
     }
 
-    private fun toPageResponse(page: Page<Perfume>): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
-        val items = page.content.map { perfume ->
-            val summary = reviewRepository.findSummaryByPerfumeId(perfume.id)
-                ?: PerfumeReviewSummaryDto(0.0, 0L)
+    private fun toPageResponse(
+        page: Page<Perfume>
+    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
+        val perfumeIds = page.content.map { it.id }
 
+        val summaries: Map<Long, PerfumeReviewSummary> =
+            reviewRepository.findSummariesByPerfumeIds(perfumeIds)
+                .associateBy { it.perfumeId }
+
+        val items = page.content.map { perfume ->
+            val summary = summaries[perfume.id]
             PerfumeDto.PerfumeSimpleResponse(
                 id = perfume.id,
                 name = perfume.name,
@@ -204,8 +210,8 @@ class PerfumeServiceImpl(
                 season = perfume.season.description,
                 gender = perfume.gender.description,
                 imageUrl = perfume.imageUrl,
-                averageRating = summary.averageRating,
-                reviewCount = summary.reviewCount
+                averageRating = summary?.averageRating ?: 0.0,
+                reviewCount = summary?.reviewCount ?: 0L
             )
         }
 
