@@ -5,11 +5,13 @@ import com.perflog.common.error.ErrorCode
 import com.perflog.domain.member.model.Member
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
+import com.perflog.domain.perfume.dto.PerfumeReviewSummaryDto
 import com.perflog.domain.perfume.repository.PerfumeRepository
 import com.perflog.domain.perfume.repository.PerfumeTagRepository
 import com.perflog.domain.preference.dto.PreferenceDto
 import com.perflog.domain.preference.model.PerfumePreference
 import com.perflog.domain.preference.repository.PerfumePreferenceRepository
+import com.perflog.domain.review.repository.ReviewRepository
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.Authentication
@@ -22,7 +24,8 @@ class PerfumePreferenceServiceImpl(
     private val preferenceRepository: PerfumePreferenceRepository,
     private val memberRepository: MemberRepository,
     private val perfumeRepository: PerfumeRepository,
-    private val perfumeTagRepository: PerfumeTagRepository
+    private val perfumeTagRepository: PerfumeTagRepository,
+    private val reviewRepository: ReviewRepository
 ) : PerfumePreferenceService {
 
     override fun recordPerfumePreference(
@@ -58,13 +61,19 @@ class PerfumePreferenceServiceImpl(
         val topTagIds = perfumeTagRepository.findTopTagsByPerfumeIds(perfumeIds, PageRequest.of(0, 3))
 
         val perfumes = perfumeTagRepository.findPerfumesByMatchingTags(topTagIds)
-        return perfumes.map {
+        return perfumes.map { perfume ->
+            val summary = reviewRepository.findSummaryByPerfumeId(perfume.id)
+                ?: PerfumeReviewSummaryDto(0.0, 0)
+
             PerfumeDto.PerfumeSimpleResponse(
-                id = it.id,
-                name = it.name,
-                brand = it.brand,
-                season = it.season.description,
-                gender = it.gender.description
+                id = perfume.id,
+                name = perfume.name,
+                brand = perfume.brand,
+                season = perfume.season.description,
+                gender = perfume.gender.description,
+                imageUrl = perfume.imageUrl,
+                averageRating = summary.averageRating,
+                reviewCount = summary.reviewCount
             )
         }
     }
