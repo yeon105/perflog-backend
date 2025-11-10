@@ -14,6 +14,7 @@ class ReviewDto {
     data class ReviewResponse(
         val id: Long,
         val perfumeId: Long,
+        val email: String,
         val rating: Int,
         val content: String,
         val createdAt: LocalDateTime,
