@@ -20,6 +20,11 @@ interface PerfumePreferenceService {
     )
 
     /**
+     * 특정 향수의 선호여부를 확인한다.
+     */
+    fun isPerfumeLiked(perfumeId: Long, authentication: Authentication): Boolean
+
+    /**
      * 선호하는 향수의 간단한 정보를 조회한다.
      *
      * @param authentication 현재 로그인한 사용자 정보

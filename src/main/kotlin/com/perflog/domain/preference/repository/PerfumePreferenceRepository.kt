@@ -17,4 +17,6 @@ interface PerfumePreferenceRepository : JpaRepository<PerfumePreference, Long> {
 """
     )
     fun findRecentLikedPerfumeIds(memberId: Long, oneMonthAgo: LocalDate): List<Long>
+
+    fun existsByMemberIdAndPerfumeId(memberId: Long, perfumeId: Long): Boolean
 }
