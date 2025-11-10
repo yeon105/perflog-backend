@@ -4,6 +4,8 @@ import com.perflog.domain.member.model.Member
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.review.dto.PerfumeReviewSummary
 import com.perflog.domain.review.model.Review
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

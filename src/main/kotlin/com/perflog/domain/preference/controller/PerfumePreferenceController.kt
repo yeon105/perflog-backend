@@ -24,6 +24,14 @@ class PerfumePreferenceController(
         return ResponseEntity.ok().build()
     }
 
+    @GetMapping("/{perfumeId}/liked")
+    fun isPerfumeLiked(
+        @PathVariable perfumeId: Long,
+        authentication: Authentication
+    ): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(preferenceService.isPerfumeLiked(perfumeId, authentication))
+    }
+
     @GetMapping
     fun getPreferredPerfumes(authentication: Authentication): ResponseEntity<List<PerfumeDto.PerfumeSimpleResponse>> {
         return ResponseEntity.ok(preferenceService.getPreferredPerfumes(authentication))

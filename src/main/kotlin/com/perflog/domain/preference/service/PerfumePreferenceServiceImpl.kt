@@ -49,6 +49,11 @@ class PerfumePreferenceServiceImpl(
         preferenceRepository.save(perfumePreference)
     }
 
+    override fun isPerfumeLiked(perfumeId: Long, authentication: Authentication): Boolean {
+        val member = findMember(authentication)
+        return preferenceRepository.existsByMemberIdAndPerfumeId(member.id, perfumeId)
+    }
+
     override fun getPreferredPerfumes(authentication: Authentication): List<PerfumeDto.PerfumeSimpleResponse> {
         val member = findMember(authentication)
 
