@@ -36,7 +36,7 @@ interface ReviewService {
     fun deleteReview(id: Long, authentication: Authentication)
 
     /**
-     * 사용자가 향수에 작성한 리뷰 목록을 조회한다.
+     * 내가 작성한 모든 리뷰를 불러온다.
      *
      * @return 리뷰 응답 DTO 목록
      */
