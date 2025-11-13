@@ -67,6 +67,7 @@ class ReviewServiceImpl(
         return ReviewDto.ReviewResponse(
             id = savedReview.id,
             perfumeId = savedReview.perfume.id,
+            memberId = savedReview.member.id,
             rating = savedReview.rating,
             content = savedReview.content,
             createdAt = savedReview.createdAt,
@@ -104,6 +105,7 @@ class ReviewServiceImpl(
             ReviewDto.ReviewResponse(
                 id = review.id,
                 perfumeId = review.perfume.id,
+                memberId = review.member.id,
                 rating = review.rating,
                 content = review.content,
                 createdAt = review.createdAt,
@@ -134,6 +136,7 @@ class ReviewServiceImpl(
             ReviewDto.ReviewResponse(
                 id = review.id,
                 perfumeId = review.perfume.id,
+                memberId = review.member.id,
                 rating = review.rating,
                 content = review.content,
                 createdAt = review.createdAt,
