@@ -23,4 +23,7 @@ interface ReviewRepository : JpaRepository<Review, Long> {
 """
     )
     fun findSummariesByPerfumeIds(@Param("perfumeIds") perfumeIds: List<Long>): List<PerfumeReviewSummary>
+
+    @Query("select r from Review r where r.member.id = :memberId")
+    fun findAllByMemberId(memberId: Long, pageable: Pageable): Page<Review>
 }
