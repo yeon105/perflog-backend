@@ -90,9 +90,7 @@ class LoginFilter(
         response.contentType = "application/json; charset=UTF-8"
         response.status = HttpServletResponse.SC_OK
         response.writer.write(
-            objectMapper.writeValueAsString(
-                mapOf("message" to "로그인 성공")
-            )
+            objectMapper.writeValueAsString(member.id)
         )
     }
 
