@@ -53,7 +53,8 @@ class SecurityConfig(
                         HttpMethod.GET,
                         "/api/perfumes",
                         "/api/perfumes/*",
-                        "/api/reviews/perfume/**"
+                        "/api/reviews/perfume/**",
+                        "/actuator/**"
                     ).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/member").permitAll()
 
