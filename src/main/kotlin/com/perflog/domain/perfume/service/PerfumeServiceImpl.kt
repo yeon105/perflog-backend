@@ -28,7 +28,6 @@ class PerfumeServiceImpl(
         if (perfumeRepository.existsByNameAndBrand(request.name, request.brand)) {
             throw CustomException(ErrorCode.DUPLICATE_PERFUME)
         }
-
         val tagIds = request.tagIds.toSet()
         val tagsById = tagRepository.findAllById(tagIds).associateBy { it.id }
 
@@ -97,7 +96,6 @@ class PerfumeServiceImpl(
             baseNotes = request.baseNotes.joinToString(",").ifBlank { null }
         }
 
-        perfumeTagRepository.deleteByPerfumeId(id)
         if (tagIds.isNotEmpty()) {
             val newLinks = tagIds.map { tagId ->
                 PerfumeTag(perfume = perfume, tag = tagsById.getValue(tagId))
@@ -107,20 +105,7 @@ class PerfumeServiceImpl(
 
         val tags = perfumeTagRepository.findByPerfume(perfume).map { it.tag.name }
 
-        return PerfumeDto.PerfumeResponse(
-            id = perfume.id,
-            name = perfume.name,
-            brand = perfume.brand,
-            launchYear = perfume.launchYear,
-            imageUrl = perfume.imageUrl,
-            longevity = perfume.longevity.description,
-            season = perfume.season.description,
-            gender = perfume.gender.description,
-            topNotes = splitNotes(perfume.topNotes),
-            middleNotes = splitNotes(perfume.middleNotes),
-            baseNotes = splitNotes(perfume.baseNotes),
-            tags = tags
-        )
+        return PerfumeDto.PerfumeResponse.from(perfume, tags)
     }
 
     @Transactional
@@ -142,20 +127,7 @@ class PerfumeServiceImpl(
 
         val tags = perfume.perfumeTags.map { it.tag.name }
 
-        return PerfumeDto.PerfumeResponse(
-            id = perfume.id,
-            name = perfume.name,
-            brand = perfume.brand,
-            launchYear = perfume.launchYear,
-            imageUrl = perfume.imageUrl,
-            longevity = perfume.longevity.description,
-            season = perfume.season.description,
-            gender = perfume.gender.description,
-            topNotes = splitNotes(perfume.topNotes),
-            middleNotes = splitNotes(perfume.middleNotes),
-            baseNotes = splitNotes(perfume.baseNotes),
-            tags = tags
-        )
+        return PerfumeDto.PerfumeResponse.from(perfume, tags)
     }
 
     override fun getPerfumeList(): PerfumeDto.PerfumeListResponse {
@@ -183,6 +155,4 @@ class PerfumeServiceImpl(
             throw CustomException(ErrorCode.FORBIDDEN)
         }
     }
-
-    private fun splitNotes(s: String?): List<String> = s?.split(",") ?: emptyList()
 }
