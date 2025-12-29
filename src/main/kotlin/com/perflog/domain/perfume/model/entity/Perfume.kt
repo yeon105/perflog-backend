@@ -7,7 +7,7 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "perfumes")
+@Table(name = "perfumes", indexes = [Index(name = "id", columnList = "id")])
 class Perfume(
 
     @Column(nullable = false)

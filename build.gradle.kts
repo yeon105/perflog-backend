@@ -36,6 +36,13 @@ dependencies {
     implementation("org.apache.poi:poi:5.2.3")
     implementation("org.apache.poi:poi-ooxml:5.2.3")
 
+    // Micrometer + Prometheus
+    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Web (metrics 자동 수집용)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")

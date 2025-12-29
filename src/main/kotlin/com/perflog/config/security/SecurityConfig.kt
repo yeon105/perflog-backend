@@ -50,7 +50,10 @@ class SecurityConfig(
                     "/", "/api/member/login", "/api/member/refresh"
                 ).permitAll()
                     .requestMatchers(
-                        HttpMethod.GET, "/api/perfumes/**", "/api/reviews/perfume/**"
+                        HttpMethod.GET,
+                        "/api/perfumes",
+                        "/api/perfumes/*",
+                        "/api/reviews/perfume/**"
                     ).permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/member").permitAll()
 

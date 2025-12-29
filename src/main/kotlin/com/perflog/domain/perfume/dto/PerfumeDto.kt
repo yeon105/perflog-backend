@@ -1,5 +1,6 @@
 package com.perflog.domain.perfume.dto
 
+import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.enum.Gender
 import com.perflog.domain.perfume.model.enum.Longevity
 import com.perflog.domain.perfume.model.enum.Season
@@ -35,7 +36,29 @@ class PerfumeDto {
         val middleNotes: List<String>,
         val baseNotes: List<String>,
         val tags: List<String>
-    )
+    ){
+        companion object {
+            fun from(perfume: Perfume, tags: List<String>): PerfumeResponse {
+                return PerfumeResponse(
+                    id = perfume.id,
+                    name = perfume.name,
+                    brand = perfume.brand,
+                    launchYear = perfume.launchYear,
+                    imageUrl = perfume.imageUrl,
+                    longevity = perfume.longevity.description,
+                    season = perfume.season.description,
+                    gender = perfume.gender.description,
+                    topNotes = split(perfume.topNotes),
+                    middleNotes = split(perfume.middleNotes),
+                    baseNotes = split(perfume.baseNotes),
+                    tags = tags
+                )
+            }
+
+            private fun split(notes: String?) =
+                notes?.split(",")?.map { it.trim() } ?: emptyList()
+        }
+    }
 
     // 향수 간단 응답 DTO
     data class PerfumeSimpleResponse(
