@@ -62,16 +62,15 @@ class ReviewServiceImpl(
         review.rating = request.rating
         review.content = request.content
 
-        val savedReview = reviewRepository.save(review)
 
         return ReviewDto.ReviewResponse(
-            id = savedReview.id,
-            perfumeId = savedReview.perfume.id,
-            memberId = savedReview.member.id,
-            rating = savedReview.rating,
-            content = savedReview.content,
-            createdAt = savedReview.createdAt,
-            updatedAt = savedReview.updatedAt
+            id = review.id,
+            perfumeId = review.perfume.id,
+            memberId = review.member.id,
+            rating = review.rating,
+            content = review.content,
+            createdAt = review.createdAt,
+            updatedAt = review.updatedAt
         )
     }
 
@@ -90,6 +89,7 @@ class ReviewServiceImpl(
         reviewRepository.delete(review)
     }
 
+    //내가 작성한 리뷰 불러오기
     @Transactional(readOnly = true)
     override fun getReviews(
         authentication: Authentication,
@@ -101,17 +101,7 @@ class ReviewServiceImpl(
         val pageable = requestDto.toPageable()
         val reviews = reviewRepository.findAllByMemberId(member.id, pageable)
 
-        val items = reviews.content.map { review ->
-            ReviewDto.ReviewResponse(
-                id = review.id,
-                perfumeId = review.perfume.id,
-                memberId = review.member.id,
-                rating = review.rating,
-                content = review.content,
-                createdAt = review.createdAt,
-                updatedAt = review.updatedAt
-            )
-        }
+        val items = reviews.content.map(ReviewDto.ReviewResponse::from)
 
         val meta = Paging.PageMeta(
             page = reviews.number + 1,
@@ -128,29 +118,13 @@ class ReviewServiceImpl(
     @Transactional(readOnly = true)
     override fun getReviewsByPerfumeId(perfumeId: Long): List<ReviewDto.ReviewResponse> {
         val reviews = reviewRepository.findByPerfumeId(perfumeId)
-        if (reviews.isEmpty()) {
-            throw CustomException(ErrorCode.REVIEW_NOT_FOUND)
-        }
 
-        return reviews.map { review ->
-            ReviewDto.ReviewResponse(
-                id = review.id,
-                perfumeId = review.perfume.id,
-                memberId = review.member.id,
-                rating = review.rating,
-                content = review.content,
-                createdAt = review.createdAt,
-                updatedAt = review.updatedAt
-            )
-        }
+        return reviews.map (ReviewDto.ReviewResponse::from)
     }
 
     @Transactional(readOnly = true)
     override fun getSummary(perfumeId: Long): ReviewDto.Summary {
         val reviews = reviewRepository.findByPerfumeId(perfumeId)
-        if (reviews.isEmpty()) {
-            throw CustomException(ErrorCode.REVIEW_NOT_FOUND)
-        }
 
         val avg = reviews.map { it.rating }.average()
         val distribution = reviews.groupingBy { it.rating }.eachCount()
