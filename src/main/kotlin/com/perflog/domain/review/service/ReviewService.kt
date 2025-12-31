@@ -2,6 +2,8 @@ package com.perflog.domain.review.service
 
 import com.perflog.common.dto.Paging
 import com.perflog.domain.review.dto.ReviewDto
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.security.core.Authentication
 
 interface ReviewService {
@@ -51,7 +53,7 @@ interface ReviewService {
      * @param perfumeId 향수 ID
      * @return 리뷰 응답 DTO 목록
      */
-    fun getReviewsByPerfumeId(perfumeId: Long): List<ReviewDto.ReviewResponse>
+    fun getReviewsByPerfumeId(perfumeId: Long,pageable : Pageable): Page<ReviewDto.ReviewResponse>
 
     /**
      * 특정 향수에 대한 리뷰 요약 정보를 조회한다.

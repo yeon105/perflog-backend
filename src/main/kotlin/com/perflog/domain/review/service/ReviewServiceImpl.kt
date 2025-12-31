@@ -8,6 +8,8 @@ import com.perflog.domain.perfume.repository.PerfumeRepository
 import com.perflog.domain.review.dto.ReviewDto
 import com.perflog.domain.review.model.Review
 import com.perflog.domain.review.repository.ReviewRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -116,10 +118,10 @@ class ReviewServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun getReviewsByPerfumeId(perfumeId: Long): List<ReviewDto.ReviewResponse> {
-        val reviews = reviewRepository.findByPerfumeId(perfumeId)
+    override fun getReviewsByPerfumeId(perfumeId: Long,pageable: Pageable): Page<ReviewDto.ReviewResponse> {
 
-        return reviews.map (ReviewDto.ReviewResponse::from)
+
+        return reviewRepository.findByPerfumeId(perfumeId,pageable).map (ReviewDto.ReviewResponse::from)
     }
 
     @Transactional(readOnly = true)
