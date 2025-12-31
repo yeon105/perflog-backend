@@ -12,8 +12,8 @@ import org.springframework.data.repository.query.Param
 
 interface ReviewRepository : JpaRepository<Review, Long> {
     fun existsByMemberAndPerfume(member: Member, perfume: Perfume): Boolean
+    fun findByPerfumeId(perfumeId: Long,pageable: Pageable): Page<Review>
     fun findByPerfumeId(perfumeId: Long): List<Review>
-
     @Query(
         """
     select r.perfume.id as perfumeId, avg(r.rating) as averageRating, count(r.id) as reviewCount
