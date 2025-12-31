@@ -3,6 +3,10 @@ package com.perflog.domain.review.controller
 import com.perflog.common.dto.Paging
 import com.perflog.domain.review.dto.ReviewDto
 import com.perflog.domain.review.service.ReviewService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
@@ -51,13 +55,20 @@ class ReviewController(
     }
 
     @GetMapping("/perfume/{perfumeId}")
-    fun getReviewsByPerfume(@PathVariable perfumeId: Long): ResponseEntity<List<ReviewDto.ReviewResponse>> {
-        val reviews = reviewService.getReviewsByPerfumeId(perfumeId)
+    fun getReviewsByPerfume(
+        @PathVariable perfumeId: Long,
+        @PageableDefault(
+        size = 20,
+        sort = ["createdAt"],
+        direction = Sort .Direction.DESC
+    ) pageable: Pageable): ResponseEntity<Page<ReviewDto.ReviewResponse>> {
+        val reviews = reviewService.getReviewsByPerfumeId(perfumeId,pageable)
         return ResponseEntity.ok(reviews)
     }
 
     @GetMapping("/perfume/{perfumeId}/summary")
-    fun getReviewSummary(@PathVariable perfumeId: Long): ResponseEntity<ReviewDto.Summary> {
+    fun getReviewSummary(@PathVariable perfumeId: Long)
+        : ResponseEntity <ReviewDto.Summary> {
         val summary = reviewService.getSummary(perfumeId)
         return ResponseEntity.ok(summary)
     }
