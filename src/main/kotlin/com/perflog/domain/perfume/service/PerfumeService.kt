@@ -49,14 +49,5 @@ interface PerfumeService {
      */
     fun getPerfumeList(requestDto: Paging.PageRequestDto): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>
 
-    /**
-     * 이름 또는 브랜드를 기준으로 향수 목록을 검색한다.
-     *
-     * @return 검색 향수 목록 응답 DTO
-     */
-    fun searchPerfume(
-        target: SearchTarget,
-        keyword: String,
-        requestDto: Paging.PageRequestDto
-    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>
+
 }
