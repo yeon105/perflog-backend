@@ -47,7 +47,7 @@ class SecurityConfig(
             .httpBasic { httpBasic -> httpBasic.disable() }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers(
-                    "/", "/api/member/login", "/api/member/refresh"
+                    "/", "/api/member/login", "/api/member/refresh", "/api/search/**",
                 ).permitAll()
                     .requestMatchers(
                         HttpMethod.GET,
