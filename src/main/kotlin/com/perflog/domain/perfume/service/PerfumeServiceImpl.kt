@@ -7,7 +7,6 @@ import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.entity.PerfumeTag
-import com.perflog.domain.perfume.model.enum.SearchTarget
 import com.perflog.domain.perfume.repository.PerfumeRepository
 import com.perflog.domain.perfume.repository.PerfumeTagRepository
 import com.perflog.domain.perfume.repository.TagRepository
@@ -145,24 +144,24 @@ class PerfumeServiceImpl(
     }
 
 
-    override fun searchPerfume(
-        target: SearchTarget,
-        keyword: String,
-        requestDto: Paging.PageRequestDto
-    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
-        val pageable = requestDto.toPageable()
-        val page = when (target) {
-            SearchTarget.NAME -> perfumeRepository.findByNameContainingIgnoreCase(keyword, pageable)
-            SearchTarget.BRAND -> perfumeRepository.findByBrandContainingIgnoreCase(keyword, pageable)
-            SearchTarget.ALL -> perfumeRepository.findByNameContainingIgnoreCaseOrBrandContainingIgnoreCase(
-                keyword,
-                keyword,
-                pageable
-            )
-        }
-
-        return toPageResponse(page)
-    }
+//    override fun searchPerfume(
+//        target: SearchTarget,
+//        keyword: String,
+//        requestDto: Paging.PageRequestDto
+//    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
+//        val pageable = requestDto.toPageable()
+//        val page = when (target) {
+//            SearchTarget.NAME -> perfumeRepository.findByNameContainingIgnoreCase(keyword, pageable)
+//            SearchTarget.BRAND -> perfumeRepository.findByBrandContainingIgnoreCase(keyword, pageable)
+//            SearchTarget.ALL -> perfumeRepository.findByNameContainingIgnoreCaseOrBrandContainingIgnoreCase(
+//                keyword,
+//                keyword,
+//                pageable
+//            )
+//        }
+//
+//        return toPageResponse(page)
+//    }
 
     private fun toPageResponse(
         page: Page<Perfume>

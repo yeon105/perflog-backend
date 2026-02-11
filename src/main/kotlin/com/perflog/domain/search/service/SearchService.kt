@@ -1,12 +1,11 @@
 package com.perflog.domain.search.service
 
-import com.perflog.common.dto.Paging
-import com.perflog.domain.perfume.dto.PerfumeDto
+import com.perflog.domain.perfume.model.entity.PerfumeDocument
 import com.perflog.domain.perfume.model.enum.SearchTarget
 import org.springframework.stereotype.Service
 
 @Service
-class SearchService {
+interface SearchService {
 
     /**
      * 이름 또는 브랜드를 기준으로 향수 목록을 검색한다.
@@ -16,6 +15,7 @@ class SearchService {
     fun searchPerfume(
         target: SearchTarget,
         keyword: String,
-        requestDto: Paging.PageRequestDto
-    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>
+    ): List<PerfumeDocument>
+
+    fun reindexAll(): String
 }
