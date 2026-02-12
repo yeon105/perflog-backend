@@ -1,10 +1,12 @@
 package com.perflog.domain.perfume.service
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient
 import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
+import com.perflog.domain.perfume.model.document.PerfumeDocument
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.entity.PerfumeTag
 import com.perflog.domain.perfume.repository.PerfumeRepository
@@ -25,6 +27,7 @@ class PerfumeServiceImpl(
     private val perfumeTagRepository: PerfumeTagRepository,
     private val memberRepository: MemberRepository,
     private val reviewRepository: ReviewRepository,
+    private val esClient: ElasticsearchClient
 ) : PerfumeService {
 
     @Transactional
@@ -59,6 +62,7 @@ class PerfumeServiceImpl(
             )
         )
 
+
         val tagLinks = tagIds.map { tagId ->
             PerfumeTag(
                 perfume = perfume,
@@ -67,6 +71,18 @@ class PerfumeServiceImpl(
         }
 
         perfumeTagRepository.saveAll(tagLinks)
+
+        //ES index 추가
+        val document = PerfumeDocument.from(
+            perfume
+        )
+
+        esClient.index {
+            it.index("perfumes")
+                .id(perfume.id.toString())
+                .document(document)
+        }
+
     }
 
     @Transactional
@@ -142,26 +158,6 @@ class PerfumeServiceImpl(
 
         return toPageResponse(page)
     }
-
-
-//    override fun searchPerfume(
-//        target: SearchTarget,
-//        keyword: String,
-//        requestDto: Paging.PageRequestDto
-//    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
-//        val pageable = requestDto.toPageable()
-//        val page = when (target) {
-//            SearchTarget.NAME -> perfumeRepository.findByNameContainingIgnoreCase(keyword, pageable)
-//            SearchTarget.BRAND -> perfumeRepository.findByBrandContainingIgnoreCase(keyword, pageable)
-//            SearchTarget.ALL -> perfumeRepository.findByNameContainingIgnoreCaseOrBrandContainingIgnoreCase(
-//                keyword,
-//                keyword,
-//                pageable
-//            )
-//        }
-//
-//        return toPageResponse(page)
-//    }
 
     private fun toPageResponse(
         page: Page<Perfume>
