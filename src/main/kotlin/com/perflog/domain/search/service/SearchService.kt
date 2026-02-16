@@ -1,9 +1,8 @@
 package com.perflog.domain.search.service
 
 import com.perflog.domain.perfume.model.document.PerfumeDocument
-import org.springframework.stereotype.Service
+import com.perflog.domain.perfume.model.enum.SearchTarget
 
-@Service
 interface SearchService {
 
     /**
@@ -11,6 +10,7 @@ interface SearchService {
      *
      * @return 검색 향수 목록 응답 DTO
      */
-    fun searchPerfume(keyword: String, page: Int, size: Int): List<PerfumeDocument>
+    fun searchPerfume(keyword: String, target: SearchTarget): List<PerfumeDocument>
+
 
 }
