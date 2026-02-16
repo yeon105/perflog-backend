@@ -1,15 +1,14 @@
 package com.perflog.domain.perfume.service
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient
 import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
-import com.perflog.domain.perfume.model.document.PerfumeDocument
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.entity.PerfumeTag
 import com.perflog.domain.perfume.repository.PerfumeRepository
+import com.perflog.domain.perfume.repository.PerfumeSearchRepository
 import com.perflog.domain.perfume.repository.PerfumeTagRepository
 import com.perflog.domain.perfume.repository.TagRepository
 import com.perflog.domain.review.dto.PerfumeReviewSummary
@@ -27,7 +26,7 @@ class PerfumeServiceImpl(
     private val perfumeTagRepository: PerfumeTagRepository,
     private val memberRepository: MemberRepository,
     private val reviewRepository: ReviewRepository,
-    private val esClient: ElasticsearchClient
+    private val perfumeSearchRepository: PerfumeSearchRepository
 ) : PerfumeService {
 
     @Transactional
@@ -37,17 +36,12 @@ class PerfumeServiceImpl(
         if (perfumeRepository.existsByNameAndBrand(request.name, request.brand)) {
             throw CustomException(ErrorCode.DUPLICATE_PERFUME)
         }
-        val tagIds = request.tagIds.toSet()
-        val tagsById = tagRepository.findAllById(tagIds).associateBy { it.id }
+        val tags = tagRepository.findAllById(request.tagIds.toSet())
 
-        if (tagsById.size != tagIds.size) {
-            val missing = tagIds - tagsById.keys
-            if (missing.isNotEmpty()) {
-                throw CustomException(ErrorCode.TAG_NOT_FOUND)
-            }
+        if (tags.size != request.tagIds.size) {
+            throw CustomException(ErrorCode.TAG_NOT_FOUND)
         }
-
-        val perfume = perfumeRepository.save(
+        val perfume =
             Perfume(
                 name = request.name,
                 brand = request.brand,
@@ -60,28 +54,20 @@ class PerfumeServiceImpl(
                 middleNotes = request.middleNotes.joinToString(",").ifBlank { null },
                 baseNotes = request.baseNotes.joinToString(",").ifBlank { null }
             )
-        )
 
 
-        val tagLinks = tagIds.map { tagId ->
-            PerfumeTag(
-                perfume = perfume,
-                tag = tagsById.getValue(tagId)
-            )
-        }
 
-        perfumeTagRepository.saveAll(tagLinks)
+        tags.forEach { perfume.addTag(it) }
 
-        //ES index 추가
-        val document = PerfumeDocument.from(
-            perfume
-        )
+        perfumeRepository.save(perfume)
 
-        esClient.index {
-            it.index("perfumes")
-                .id(perfume.id.toString())
-                .document(document)
-        }
+        //        엘라스틱 서치 저장
+//        perfumeSearchRepository.save(
+//            PerfumeDocument.of(
+//                perfume,
+//                tags
+//            )
+//        )
 
     }
 
