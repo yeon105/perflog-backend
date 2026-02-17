@@ -1,4 +1,7 @@
 spring:
+  elasticsearch:
+    uris: http://localhost:9200
+
   datasource:
     url: jdbc:mysql://localhost:3306/perfume
     username: root
@@ -30,3 +33,4 @@ management:
     distribution:
       percentiles-histogram:
         http.server.requests: true
+
