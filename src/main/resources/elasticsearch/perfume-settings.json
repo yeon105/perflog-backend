@@ -6,7 +6,7 @@
     "tokenizer": {
       "autocomplete_tokenizer": {
         "type": "ngram",
-        "min_gram": 1,
+        "min_gram": 2,
         "max_gram": 20,
         "token_chars": [
           "letter",
@@ -19,14 +19,16 @@
         "type": "custom",
         "tokenizer": "autocomplete_tokenizer",
         "filter": [
-          "lowercase"
+          "lowercase",
+          "trim"
         ]
       },
       "autocomplete_search_analyzer": {
         "type": "custom",
         "tokenizer": "standard",
         "filter": [
-          "lowercase"
+          "lowercase",
+          "trim"
         ]
       }
     }
