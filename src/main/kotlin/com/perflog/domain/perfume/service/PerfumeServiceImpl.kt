@@ -3,12 +3,13 @@ package com.perflog.domain.perfume.service
 import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
+import com.perflog.config.Kafka.PerfumeCreatedEvent
+import com.perflog.config.Kafka.PerfumeEventProducer
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.entity.PerfumeTag
 import com.perflog.domain.perfume.repository.PerfumeRepository
-import com.perflog.domain.perfume.repository.PerfumeSearchRepository
 import com.perflog.domain.perfume.repository.PerfumeTagRepository
 import com.perflog.domain.perfume.repository.TagRepository
 import com.perflog.domain.review.dto.PerfumeReviewSummary
@@ -26,7 +27,7 @@ class PerfumeServiceImpl(
     private val perfumeTagRepository: PerfumeTagRepository,
     private val memberRepository: MemberRepository,
     private val reviewRepository: ReviewRepository,
-    private val perfumeSearchRepository: PerfumeSearchRepository
+    private val perfumeEventProducer: PerfumeEventProducer
 ) : PerfumeService {
 
     @Transactional
@@ -54,21 +55,15 @@ class PerfumeServiceImpl(
                 middleNotes = request.middleNotes.joinToString(",").ifBlank { null },
                 baseNotes = request.baseNotes.joinToString(",").ifBlank { null }
             )
-
-
-
+        
         tags.forEach { perfume.addTag(it) }
 
         perfumeRepository.save(perfume)
 
         //        엘라스틱 서치 저장
-//        perfumeSearchRepository.save(
-//            PerfumeDocument.of(
-//                perfume,
-//                tags
-//            )
-//        )
-
+        perfumeEventProducer.sendCreatedEvent(
+            PerfumeCreatedEvent.of(perfume, tags)
+        )
     }
 
     @Transactional
