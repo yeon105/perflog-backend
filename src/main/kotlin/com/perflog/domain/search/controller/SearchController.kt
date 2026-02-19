@@ -1,8 +1,8 @@
 package com.perflog.domain.search.controller
 
 import com.perflog.domain.perfume.dto.PerfumeDto
-import com.perflog.domain.perfume.model.document.PerfumeDocument
 import com.perflog.domain.perfume.model.enum.SearchTarget
+import com.perflog.domain.search.dto.SearchPerfumeResponse
 import com.perflog.domain.search.service.SearchService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,7 +20,7 @@ class SearchController(
     fun searchPerfume(
         @RequestParam keyword: String,
         @RequestParam target: SearchTarget
-    ): List<PerfumeDocument> {
+    ): List<SearchPerfumeResponse> {
         return searchService.searchPerfume(keyword, target)
     }
 
