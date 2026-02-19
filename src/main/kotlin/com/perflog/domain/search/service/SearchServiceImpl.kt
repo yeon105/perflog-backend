@@ -4,6 +4,7 @@ import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.perfume.model.document.PerfumeDocument
 import com.perflog.domain.perfume.model.enum.SearchTarget
 import com.perflog.domain.perfume.repository.PerfumeSearchRepository
+import com.perflog.domain.search.dto.SearchPerfumeResponse
 import org.springframework.data.elasticsearch.client.elc.NativeQuery
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations
 import org.springframework.stereotype.Service
@@ -19,15 +20,70 @@ class SearchServiceImpl(
     override fun searchPerfume(
         keyword: String,
         target: SearchTarget
-    ): List<PerfumeDocument> {
-        return when (target) {
-            SearchTarget.NAME -> perfumeSearchRepository.findByNameContainingIgnoreCase(keyword)
-            SearchTarget.BRAND -> perfumeSearchRepository.findByBrandContainingIgnoreCase(keyword)
-            SearchTarget.NOTES -> perfumeSearchRepository.findByNotesContainingIgnoreCase(keyword)
-            SearchTarget.ALL -> perfumeSearchRepository.findByNameContainingIgnoreCaseOrBrandContainingIgnoreCaseOrNotesContainingIgnoreCase(
-                keyword, keyword, keyword
-            )
-        }
+    ): List<SearchPerfumeResponse> {
+
+        val query = NativeQuery.builder()
+            .withQuery { q ->
+                q.bool { b ->
+
+                    when (target) {
+
+                        SearchTarget.NAME ->
+                            b.must {
+                                it.match { m ->
+                                    m.field("name")
+                                        .query(keyword)
+                                }
+                            }
+
+                        SearchTarget.BRAND ->
+                            b.must {
+                                it.match { m ->
+                                    m.field("brand")
+                                        .query(keyword)
+                                }
+                            }
+
+                        SearchTarget.NOTES ->
+                            b.must {
+                                it.match { m ->
+                                    m.field("notes")
+                                        .query(keyword)
+                                }
+                            }
+
+                        SearchTarget.ALL ->
+                            b.should {
+                                it.match { m ->
+                                    m.field("name")
+                                        .query(keyword)
+                                        .boost(3.0f)
+                                }
+                            }
+                                .should {
+                                    it.match { m ->
+                                        m.field("brand")
+                                            .query(keyword)
+                                            .boost(2.0f)
+                                    }
+                                }
+                                .should {
+                                    it.match { m ->
+                                        m.field("notes")
+                                            .query(keyword)
+                                    }
+                                }
+                                .minimumShouldMatch("1")
+                    }
+                }
+            }
+            .withMaxResults(20)
+            .build()
+
+        val searchHits =
+            elasticsearchOperations.search(query, PerfumeDocument::class.java)
+
+        return searchHits.searchHits.map { SearchPerfumeResponse.from(it) }
     }
 
     override fun autocomplete(keyword: String): List<PerfumeDto.autocomplete> {

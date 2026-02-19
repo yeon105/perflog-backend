@@ -1,8 +1,8 @@
 package com.perflog.domain.search.service
 
 import com.perflog.domain.perfume.dto.PerfumeDto
-import com.perflog.domain.perfume.model.document.PerfumeDocument
 import com.perflog.domain.perfume.model.enum.SearchTarget
+import com.perflog.domain.search.dto.SearchPerfumeResponse
 
 interface SearchService {
 
@@ -11,7 +11,7 @@ interface SearchService {
      *
      * @return 검색 향수 목록 응답 DTO
      */
-    fun searchPerfume(keyword: String, target: SearchTarget): List<PerfumeDocument>
+    fun searchPerfume(keyword: String, target: SearchTarget): List<SearchPerfumeResponse>
 
     fun autocomplete(keyword: String): List<PerfumeDto.autocomplete>
 
