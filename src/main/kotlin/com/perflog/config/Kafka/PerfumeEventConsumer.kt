@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component
 class PerfumeEventConsumer(private val perfumeSearchRepository: PerfumeSearchRepository) {
     @KafkaListener(
         topics = ["perfume-created"],
-        containerFactory = "kafkaListenerContainerFactory"
     )
     fun handleCreated(event: PerfumeCreatedEvent) {
+        println("시작 ID: ${event.id}")
 
         val document = PerfumeDocument(
             id = event.id.toString(),
@@ -23,7 +23,16 @@ class PerfumeEventConsumer(private val perfumeSearchRepository: PerfumeSearchRep
             notes = event.notes,
             tags = event.tags
         )
+        
+        // 실패 테스트
+        if (event.id % 15 == 0L) {
+            throw RuntimeException("실패 테스트")
+        }
 
         perfumeSearchRepository.save(document)
+
+
+
+        println("commit 완료 ID: ${event.id}")
     }
 }
