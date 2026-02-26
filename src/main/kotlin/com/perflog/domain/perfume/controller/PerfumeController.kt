@@ -2,9 +2,6 @@ package com.perflog.domain.perfume.controller
 
 import com.perflog.common.dto.Paging
 import com.perflog.domain.perfume.dto.PerfumeDto
-import com.perflog.domain.perfume.model.enum.Gender
-import com.perflog.domain.perfume.model.enum.Longevity
-import com.perflog.domain.perfume.model.enum.Season
 import com.perflog.domain.perfume.service.PerfumeService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -55,28 +52,10 @@ class PerfumeController(
 
 
     @PostMapping("/bulk-perfume")
-    fun bulkCreate(authentication: Authentication): String {
+    fun bulkCreate(): String {
 
-        for (i in 1..300) {
 
-            val request = PerfumeDto.PerfumeRequest(
-                name = "조말론블랙베리-$i",
-                brand = "조말론",
-                launchYear = 2001,
-                imageUrl = "https://example.com/perfume.jpg",
-                longevity = Longevity.MEDIUM,
-                season = Season.SUMMER,
-                gender = Gender.MALE,
-                topNotes = listOf("Bergamot", "Lemon", "Orange"),
-                middleNotes = listOf("Jasmine", "Rose"),
-                baseNotes = listOf("Musk", "Cedarwood"),
-                tagIds = listOf(1L, 2L, 3L)
-            )
-
-            perfumeService.createPerfume(request, authentication)
-        }
-
-        return "1000건 생성 완료"
+        return perfumeService.migrate()
     }
 
 }
