@@ -1,5 +1,6 @@
 package com.perflog.domain.perfume.service
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient
 import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
@@ -7,6 +8,7 @@ import com.perflog.config.Kafka.PerfumeCreatedEvent
 import com.perflog.config.Kafka.PerfumeEventProducer
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
+import com.perflog.domain.perfume.model.document.PerfumeDocument
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.entity.PerfumeTag
 import com.perflog.domain.perfume.repository.PerfumeRepository
@@ -15,6 +17,7 @@ import com.perflog.domain.perfume.repository.TagRepository
 import com.perflog.domain.review.dto.PerfumeReviewSummary
 import com.perflog.domain.review.repository.ReviewRepository
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,7 +30,8 @@ class PerfumeServiceImpl(
     private val perfumeTagRepository: PerfumeTagRepository,
     private val memberRepository: MemberRepository,
     private val reviewRepository: ReviewRepository,
-    private val perfumeEventProducer: PerfumeEventProducer
+    private val perfumeEventProducer: PerfumeEventProducer,
+    private val elasticsearchClient: ElasticsearchClient,
 ) : PerfumeService {
 
     @Transactional
@@ -55,7 +59,7 @@ class PerfumeServiceImpl(
                 middleNotes = request.middleNotes.joinToString(",").ifBlank { null },
                 baseNotes = request.baseNotes.joinToString(",").ifBlank { null }
             )
-        
+
         tags.forEach { perfume.addTag(it) }
 
         perfumeRepository.save(perfume)
@@ -138,6 +142,55 @@ class PerfumeServiceImpl(
         val page = perfumeRepository.findAll(pageable)
 
         return toPageResponse(page)
+    }
+
+    @Transactional(readOnly = true)
+    override fun migrate(): String {
+        val start = System.currentTimeMillis()
+
+        var lastId = 0L
+        val batchSize = 1000
+        var totalCount = 0
+
+        while (true) {
+
+            val perfumes = perfumeRepository.findBatchAfterId(
+                lastId,
+                PageRequest.of(0, batchSize)
+            )
+
+            if (perfumes.isEmpty()) break
+
+            val bulkRequest = co.elastic.clients.elasticsearch.core.BulkRequest.Builder()
+
+            perfumes.forEach { perfume ->
+
+                val tags = perfume.perfumeTags.map { it.tag }
+                val document = PerfumeDocument.of(perfume, tags)
+
+                bulkRequest.operations { op ->
+                    op.index { idx ->
+                        idx
+                            .index("perfumes")
+                            .id(document.id)
+                            .document(document)
+                    }
+                }
+            }
+
+            val response = elasticsearchClient.bulk(bulkRequest.build())
+
+            if (response.errors()) {
+                throw RuntimeException("Bulk insert error")
+            }
+
+            totalCount += perfumes.size
+            lastId = perfumes.last().id
+        }
+
+        val end = System.currentTimeMillis()
+
+        return "총 ${totalCount}건, 소요시간 ${(end - start) / 1000}초"
     }
 
     private fun toPageResponse(
