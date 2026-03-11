@@ -4,8 +4,8 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient
 import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
-import com.perflog.config.Kafka.PerfumeCreatedEvent
-import com.perflog.config.Kafka.PerfumeEventProducer
+import com.perflog.config.kafka.PerfumeCreatedEvent
+import com.perflog.config.kafka.PerfumeEventProducer
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
 import com.perflog.domain.perfume.model.document.PerfumeDocument
@@ -22,9 +22,13 @@ import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * 향수 비즈니스 로직을 처리하는 서비스 구현 클래스입니다.
+ */
 @Transactional(readOnly = true)
 @Service
-class PerfumeServiceImpl(
+class PerfumeServiceImpl
+    (
     private val perfumeRepository: PerfumeRepository,
     private val tagRepository: TagRepository,
     private val perfumeTagRepository: PerfumeTagRepository,
@@ -34,6 +38,9 @@ class PerfumeServiceImpl(
     private val elasticsearchClient: ElasticsearchClient,
 ) : PerfumeService {
 
+    /**
+     * 새로운 향수를 생성하고 이벤트를 발행합니다.
+     */
     @Transactional
     override fun createPerfume(request: PerfumeDto.PerfumeRequest, authentication: Authentication) {
         findMember(authentication)
