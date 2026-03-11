@@ -43,10 +43,18 @@ dependencies {
     // Web (metrics 자동 수집용)
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    //   elasticsearch
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+//    implementation("co.elastic.clients:elasticsearch-java:8.11.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+
+    //  kafka
+    implementation("org.springframework.kafka:spring-kafka")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.security:spring-security-test")
-    runtimeOnly("com.mysql:mysql-connector-j")
+    implementation("com.mysql:mysql-connector-j:8.4.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

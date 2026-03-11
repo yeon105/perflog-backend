@@ -50,8 +50,13 @@ class Perfume(
     @OneToMany(
         mappedBy = "perfume",
         fetch = FetchType.LAZY,
-        cascade = [CascadeType.REMOVE],
+        cascade = [CascadeType.ALL],
         orphanRemoval = true
     )
     val perfumeTags: MutableList<PerfumeTag> = mutableListOf()
+
+    fun addTag(tag: Tag) {
+        val perfumeTag = PerfumeTag(this, tag)
+        perfumeTags.add(perfumeTag)
+    }
 }

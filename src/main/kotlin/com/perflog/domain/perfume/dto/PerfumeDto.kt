@@ -36,7 +36,7 @@ class PerfumeDto {
         val middleNotes: List<String>,
         val baseNotes: List<String>,
         val tags: List<String>
-    ){
+    ) {
         companion object {
             fun from(perfume: Perfume, tags: List<String>): PerfumeResponse {
                 return PerfumeResponse(
@@ -70,5 +70,9 @@ class PerfumeDto {
         val imageUrl: String,
         val averageRating: Double,
         val reviewCount: Long
+    )
+
+    data class autocomplete(
+        val name: String,
     )
 }

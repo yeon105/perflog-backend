@@ -2,7 +2,6 @@ package com.perflog.domain.perfume.controller
 
 import com.perflog.common.dto.Paging
 import com.perflog.domain.perfume.dto.PerfumeDto
-import com.perflog.domain.perfume.model.enum.SearchTarget
 import com.perflog.domain.perfume.service.PerfumeService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -51,13 +50,12 @@ class PerfumeController(
         return ResponseEntity.ok(perfumeService.getPerfumeList(requestDto))
     }
 
-    @GetMapping("/search")
-    fun searchPerfume(
-        @RequestParam target: SearchTarget,
-        @RequestParam keyword: String,
-        requestDto: Paging.PageRequestDto
-    ): ResponseEntity<Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>> {
-        return ResponseEntity.ok(perfumeService.searchPerfume(target, keyword, requestDto))
+
+    @PostMapping("/bulk-perfume")
+    fun bulkCreate(): String {
+
+
+        return perfumeService.migrate()
     }
 
 }

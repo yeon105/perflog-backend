@@ -1,33 +1,46 @@
 package com.perflog.domain.perfume.service
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient
 import com.perflog.common.dto.Paging
 import com.perflog.common.error.CustomException
 import com.perflog.common.error.ErrorCode
+import com.perflog.config.kafka.PerfumeCreatedEvent
+import com.perflog.config.kafka.PerfumeEventProducer
 import com.perflog.domain.member.repository.MemberRepository
 import com.perflog.domain.perfume.dto.PerfumeDto
+import com.perflog.domain.perfume.model.document.PerfumeDocument
 import com.perflog.domain.perfume.model.entity.Perfume
 import com.perflog.domain.perfume.model.entity.PerfumeTag
-import com.perflog.domain.perfume.model.enum.SearchTarget
 import com.perflog.domain.perfume.repository.PerfumeRepository
 import com.perflog.domain.perfume.repository.PerfumeTagRepository
 import com.perflog.domain.perfume.repository.TagRepository
 import com.perflog.domain.review.dto.PerfumeReviewSummary
 import com.perflog.domain.review.repository.ReviewRepository
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * 향수 비즈니스 로직을 처리하는 서비스 구현 클래스입니다.
+ */
 @Transactional(readOnly = true)
 @Service
-class PerfumeServiceImpl(
+class PerfumeServiceImpl
+    (
     private val perfumeRepository: PerfumeRepository,
     private val tagRepository: TagRepository,
     private val perfumeTagRepository: PerfumeTagRepository,
     private val memberRepository: MemberRepository,
     private val reviewRepository: ReviewRepository,
+    private val perfumeEventProducer: PerfumeEventProducer,
+    private val elasticsearchClient: ElasticsearchClient,
 ) : PerfumeService {
 
+    /**
+     * 새로운 향수를 생성하고 이벤트를 발행합니다.
+     */
     @Transactional
     override fun createPerfume(request: PerfumeDto.PerfumeRequest, authentication: Authentication) {
         findMember(authentication)
@@ -35,17 +48,12 @@ class PerfumeServiceImpl(
         if (perfumeRepository.existsByNameAndBrand(request.name, request.brand)) {
             throw CustomException(ErrorCode.DUPLICATE_PERFUME)
         }
-        val tagIds = request.tagIds.toSet()
-        val tagsById = tagRepository.findAllById(tagIds).associateBy { it.id }
+        val tags = tagRepository.findAllById(request.tagIds.toSet())
 
-        if (tagsById.size != tagIds.size) {
-            val missing = tagIds - tagsById.keys
-            if (missing.isNotEmpty()) {
-                throw CustomException(ErrorCode.TAG_NOT_FOUND)
-            }
+        if (tags.size != request.tagIds.size) {
+            throw CustomException(ErrorCode.TAG_NOT_FOUND)
         }
-
-        val perfume = perfumeRepository.save(
+        val perfume =
             Perfume(
                 name = request.name,
                 brand = request.brand,
@@ -58,16 +66,15 @@ class PerfumeServiceImpl(
                 middleNotes = request.middleNotes.joinToString(",").ifBlank { null },
                 baseNotes = request.baseNotes.joinToString(",").ifBlank { null }
             )
+
+        tags.forEach { perfume.addTag(it) }
+
+        perfumeRepository.save(perfume)
+
+        //        엘라스틱 서치 저장
+        perfumeEventProducer.sendCreatedEvent(
+            PerfumeCreatedEvent.of(perfume, tags)
         )
-
-        val tagLinks = tagIds.map { tagId ->
-            PerfumeTag(
-                perfume = perfume,
-                tag = tagsById.getValue(tagId)
-            )
-        }
-
-        perfumeTagRepository.saveAll(tagLinks)
     }
 
     @Transactional
@@ -144,24 +151,53 @@ class PerfumeServiceImpl(
         return toPageResponse(page)
     }
 
+    @Transactional(readOnly = true)
+    override fun migrate(): String {
+        val start = System.currentTimeMillis()
 
-    override fun searchPerfume(
-        target: SearchTarget,
-        keyword: String,
-        requestDto: Paging.PageRequestDto
-    ): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse> {
-        val pageable = requestDto.toPageable()
-        val page = when (target) {
-            SearchTarget.NAME -> perfumeRepository.findByNameContainingIgnoreCase(keyword, pageable)
-            SearchTarget.BRAND -> perfumeRepository.findByBrandContainingIgnoreCase(keyword, pageable)
-            SearchTarget.ALL -> perfumeRepository.findByNameContainingIgnoreCaseOrBrandContainingIgnoreCase(
-                keyword,
-                keyword,
-                pageable
+        var lastId = 0L
+        val batchSize = 1000
+        var totalCount = 0
+
+        while (true) {
+
+            val perfumes = perfumeRepository.findBatchAfterId(
+                lastId,
+                PageRequest.of(0, batchSize)
             )
+
+            if (perfumes.isEmpty()) break
+
+            val bulkRequest = co.elastic.clients.elasticsearch.core.BulkRequest.Builder()
+
+            perfumes.forEach { perfume ->
+
+                val tags = perfume.perfumeTags.map { it.tag }
+                val document = PerfumeDocument.of(perfume, tags)
+
+                bulkRequest.operations { op ->
+                    op.index { idx ->
+                        idx
+                            .index("perfumes")
+                            .id(document.id)
+                            .document(document)
+                    }
+                }
+            }
+
+            val response = elasticsearchClient.bulk(bulkRequest.build())
+
+            if (response.errors()) {
+                throw RuntimeException("Bulk insert error")
+            }
+
+            totalCount += perfumes.size
+            lastId = perfumes.last().id
         }
 
-        return toPageResponse(page)
+        val end = System.currentTimeMillis()
+
+        return "총 ${totalCount}건, 소요시간 ${(end - start) / 1000}초"
     }
 
     private fun toPageResponse(
