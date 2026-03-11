@@ -2,7 +2,6 @@ package com.perflog.domain.perfume.service
 
 import com.perflog.common.dto.Paging
 import com.perflog.domain.perfume.dto.PerfumeDto
-import com.perflog.domain.perfume.model.enum.SearchTarget
 import org.springframework.security.core.Authentication
 
 interface PerfumeService {
@@ -48,6 +47,7 @@ interface PerfumeService {
      * @return 향수 목록 응답 DTO
      */
     fun getPerfumeList(requestDto: Paging.PageRequestDto): Paging.PageResponseDto<PerfumeDto.PerfumeSimpleResponse>
+    fun migrate(): String
 
 
 }
