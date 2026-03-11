@@ -1,4 +1,4 @@
-package com.perflog.config.Kafka
+package com.perflog.config.kafka
 
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
